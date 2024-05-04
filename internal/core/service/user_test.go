@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/raphael-foliveira/go-table-tests/internal/core/domain"
@@ -26,7 +25,7 @@ func TestUserService_Login(t *testing.T) {
 		userEmail             string
 		userPassword          string
 		name                  string
-		expectError           bool
+		expectedError         error
 		hasherMockResult      bool
 	}{
 		{
@@ -58,7 +57,7 @@ func TestUserService_Login(t *testing.T) {
 				Email:    "test@user.com",
 			},
 			hasherMockResult: false,
-			expectError:      true,
+			expectedError:    service.ErrInvalidCredentials,
 			mockFindByEmailResult: &domain.User{
 				Email: &domain.Email{
 					Value: "test@user.com",
@@ -75,9 +74,8 @@ func TestUserService_Login(t *testing.T) {
 			userEmail:             "invalid@email.com",
 			userPassword:          "unhashedPassword",
 			expectedData:          nil,
-			expectError:           true,
+			expectedError:         service.ErrInvalidCredentials,
 			mockFindByEmailResult: nil,
-			mockFindByEmailError:  errors.New("not found"),
 		},
 	}
 
@@ -89,19 +87,21 @@ func TestUserService_Login(t *testing.T) {
 				FindByEmail(tt.userEmail).
 				Return(tt.mockFindByEmailResult, tt.mockFindByEmailError)
 
-			if tt.mockFindByEmailError == nil {
+			if tt.mockFindByEmailResult != nil {
 				hasherMock.EXPECT().
 					Compare(tt.userPassword, tt.mockFindByEmailResult.Password.Value).
 					Return(tt.hasherMockResult)
 			}
 
 			result, err := userService.Login(tt.userEmail, tt.userPassword)
-			assert.Equal(t, tt.expectError, err != nil)
+			assert.Equal(t, tt.expectedError != nil, err != nil)
 
-			if !tt.expectError {
+			if tt.expectedError == nil {
 				assert.Equal(t, tt.expectedData.Email, result.Email)
 				assert.Equal(t, tt.expectedData.Username, result.Username)
+				return
 			}
+			assert.ErrorIs(t, tt.expectedError, err)
 		})
 	}
 }
@@ -118,8 +118,6 @@ func TestUserService_Signup(t *testing.T) {
 		payloadUsername      string
 		payloadPassword      string
 		expectError          bool
-		skipFindByEmail      bool
-		skipCreate           bool
 	}{
 		{
 			name:            "Successful signup",
@@ -128,18 +126,20 @@ func TestUserService_Signup(t *testing.T) {
 			payloadPassword: "valid_password",
 		},
 		{
-			name: "Email already taken",
-			findByEmailReturn: &domain.User{
-				Email: &domain.Email{
-					Value: "taken@email.com",
-				},
-			},
-			payloadEmail:    "taken@email.com",
-			payloadUsername: "validusername",
-			payloadPassword: "validpassword",
-			expectError:     true,
-			skipFindByEmail: true,
-			skipCreate:      true,
+			name:              "Email already taken",
+			findByEmailReturn: &domain.User{},
+			payloadEmail:      "taken@email.com",
+			payloadUsername:   "validusername",
+			payloadPassword:   "validpassword",
+			expectError:       true,
+		},
+		{
+			name:                 "Username already taken",
+			findByUsernameReturn: &domain.User{},
+			payloadEmail:         "valid@email.com",
+			payloadUsername:      "takenusername",
+			payloadPassword:      "validpassword",
+			expectError:          true,
 		},
 	}
 
@@ -151,15 +151,15 @@ func TestUserService_Signup(t *testing.T) {
 				FindByEmail(tt.payloadEmail).
 				Return(tt.findByEmailReturn, tt.findByEmailError)
 
-			if !tt.skipFindByEmail {
+			if tt.findByEmailReturn == nil {
 				userRepositoryMock.EXPECT().
 					FindByUsername(tt.payloadUsername).
 					Return(tt.findByUsernameReturn, tt.findByUsernameError)
-			}
 
-			if !tt.skipCreate {
-				userRepositoryMock.EXPECT().
-					Create(mock.Anything).Return(tt.createError)
+				if tt.findByUsernameReturn == nil {
+					userRepositoryMock.EXPECT().
+						Create(mock.Anything).Return(tt.createError)
+				}
 			}
 
 			response, err := userService.Signup(&service.SignupPayload{
