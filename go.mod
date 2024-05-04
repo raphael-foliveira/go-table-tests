@@ -1,4 +1,4 @@
-module github.com/raphael-foliveira/login-service-hexagonal
+module github.com/raphael-foliveira/go-table-tests
 
 go 1.22.0
 

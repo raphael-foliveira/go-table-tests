@@ -3,6 +3,6 @@ with-expecter: True
 outpkg: mocks
 dir: pkg/mocks/
 packages:
-  github.com/raphael-foliveira/login-service-hexagonal:
+  github.com/raphael-foliveira/go-table-tests:
     config:
       recursive: True

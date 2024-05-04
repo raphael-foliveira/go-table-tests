@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 
-	"github.com/raphael-foliveira/login-service-hexagonal/internal/core/domain"
+	"github.com/raphael-foliveira/go-table-tests/internal/core/domain"
 )
 
 type UserRepository interface {

@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	domain "github.com/raphael-foliveira/login-service-hexagonal/internal/core/domain"
+	domain "github.com/raphael-foliveira/go-table-tests/internal/core/domain"
 
 	mock "github.com/stretchr/testify/mock"
 )

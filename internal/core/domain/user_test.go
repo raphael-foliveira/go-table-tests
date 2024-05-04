@@ -3,7 +3,7 @@ package domain_test
 import (
 	"testing"
 
-	"github.com/raphael-foliveira/login-service-hexagonal/internal/core/domain"
+	"github.com/raphael-foliveira/go-table-tests/internal/core/domain"
 	"github.com/stretchr/testify/assert"
 )
 
