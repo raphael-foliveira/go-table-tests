@@ -13,7 +13,7 @@ func TestUser_Email(t *testing.T) {
 			Value: "valid@email.com",
 		}
 
-		assert.True(t, validEmail.IsValid())
+		assert.NoError(t, validEmail.Validate())
 	})
 
 	t.Run("Invalid Email", func(t *testing.T) {
@@ -21,7 +21,7 @@ func TestUser_Email(t *testing.T) {
 			Value: "invalid_email",
 		}
 
-		assert.False(t, invalidEmail.IsValid())
+		assert.ErrorIs(t, domain.ErrEmailInvalid, invalidEmail.Validate())
 	})
 }
 
@@ -32,7 +32,7 @@ func TestUser_Password(t *testing.T) {
 			IsHashed: false,
 		}
 
-		assert.True(t, validPassword.IsValid())
+		assert.NoError(t, validPassword.Validate())
 	})
 
 	t.Run("Invalid Password", func(t *testing.T) {
@@ -41,7 +41,7 @@ func TestUser_Password(t *testing.T) {
 			IsHashed: false,
 		}
 
-		assert.False(t, invalidPassword.IsValid())
+		assert.ErrorIs(t, domain.ErrPasswordTooShort, invalidPassword.Validate())
 	})
 
 	t.Run("Already hashed password", func(t *testing.T) {
@@ -50,7 +50,7 @@ func TestUser_Password(t *testing.T) {
 			IsHashed: true,
 		}
 
-		assert.False(t, alreadyHashedPassword.IsValid())
+		assert.ErrorIs(t, domain.ErrPasswordAlreadyHashed, alreadyHashedPassword.Validate())
 	})
 }
 
@@ -67,14 +67,14 @@ func TestUser_User(t *testing.T) {
 			},
 		}
 
-		assert.True(t, validUser.IsValid())
+		assert.NoError(t, validUser.Validate())
 	})
 
 	t.Run("Invalid User", func(t *testing.T) {
-		validUser := &domain.User{
+		invalidUser := &domain.User{
 			Username: "valid_user",
 			Email: &domain.Email{
-				Value: "valid_email.com",
+				Value: "invalid_email.com",
 			},
 			Password: &domain.Password{
 				Value:    "valid_password_string",
@@ -82,6 +82,6 @@ func TestUser_User(t *testing.T) {
 			},
 		}
 
-		assert.False(t, validUser.IsValid())
+		assert.ErrorIs(t, domain.ErrEmailInvalid, invalidUser.Validate())
 	})
 }
