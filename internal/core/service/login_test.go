@@ -111,7 +111,6 @@ func TestLoginService_Login(t *testing.T) {
 			if !tt.expectError {
 				assert.Equal(t, tt.expectedData.Email, result.Email)
 				assert.Equal(t, tt.expectedData.Username, result.Username)
-				return
 			}
 		})
 	}
