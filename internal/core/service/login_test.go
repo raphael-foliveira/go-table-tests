@@ -10,17 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var userStub = &domain.User{
-	Username: "Test User",
-	Email: &domain.Email{
-		Value: "test@user.com",
-	},
-	Password: &domain.Password{
-		Value:    "hashedTestPassword",
-		IsHashed: true,
-	},
-}
-
 func setUp(t *testing.T) (*mocks.MockHasher, *mocks.MockUserRepository, *service.LoginService) {
 	hasherMock := mocks.NewMockHasher(t)
 	userRepositoryMock := mocks.NewMockUserRepository(t)
