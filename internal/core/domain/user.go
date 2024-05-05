@@ -48,6 +48,35 @@ func (u *User) Validate() error {
 	return nil
 }
 
+type LoginResponse struct {
+	Username string
+	Email    string
+}
+
+type SignupPayload struct {
+	Email    string
+	Password string
+	Username string
+}
+
+func (p *SignupPayload) ToDomainUser() *User {
+	return &User{
+		Username: p.Username,
+		Email: &Email{
+			Value: p.Email,
+		},
+		Password: &Password{
+			Value: p.Password,
+		},
+	}
+}
+
+type SignupResponse struct {
+	Username string
+	Email    string
+	ID       uint
+}
+
 var (
 	ErrPasswordTooShort      = errors.New("password is too short")
 	ErrPasswordAlreadyHashed = errors.New("password already hashed")

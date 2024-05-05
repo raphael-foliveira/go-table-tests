@@ -19,20 +19,20 @@ func setUp(t *testing.T) (*mocks.MockHasher, *mocks.MockUserRepository, *service
 
 func TestUserService_Login(t *testing.T) {
 	tests := []struct {
-		expectedData          *service.LoginResponse
-		mockFindByEmailResult *domain.User
 		mockFindByEmailError  error
+		expectedError         error
+		expectedData          *domain.LoginResponse
+		mockFindByEmailResult *domain.User
 		userEmail             string
 		userPassword          string
 		name                  string
-		expectedError         error
 		hasherMockResult      bool
 	}{
 		{
 			name:         "Successful login",
 			userEmail:    "test@user.com",
 			userPassword: "unhashedPassword",
-			expectedData: &service.LoginResponse{
+			expectedData: &domain.LoginResponse{
 				Username: "testuser",
 				Email:    "test@user.com",
 			},
@@ -52,7 +52,7 @@ func TestUserService_Login(t *testing.T) {
 			name:         "Valid email with invalid password",
 			userEmail:    "test@user.com",
 			userPassword: "unhashedPassword",
-			expectedData: &service.LoginResponse{
+			expectedData: &domain.LoginResponse{
 				Username: "testuser",
 				Email:    "test@user.com",
 			},
@@ -168,7 +168,7 @@ func TestUserService_Signup(t *testing.T) {
 				}
 			}
 
-			response, err := userService.Signup(&service.SignupPayload{
+			response, err := userService.Signup(&domain.SignupPayload{
 				Username: tt.payloadUsername,
 				Email:    tt.payloadEmail,
 				Password: tt.payloadPassword,

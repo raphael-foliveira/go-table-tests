@@ -5,36 +5,22 @@ import (
 	"fmt"
 
 	"github.com/raphael-foliveira/go-table-tests/internal/core/domain"
+	"github.com/raphael-foliveira/go-table-tests/internal/core/ports"
 )
 
-type UserRepository interface {
-	FindByEmail(email string) (*domain.User, error)
-	FindByUsername(username string) (*domain.User, error)
-	Create(user *domain.User) error
-}
-
-type Hasher interface {
-	Compare(givenPassword, hashedPassword string) bool
-}
-
 type UserService struct {
-	userRepository UserRepository
-	hasher         Hasher
+	userRepository ports.UsersRepository
+	hasher         ports.Hasher
 }
 
-func NewUserService(repository UserRepository, hasher Hasher) *UserService {
+func NewUserService(repository ports.UsersRepository, hasher ports.Hasher) *UserService {
 	return &UserService{
 		userRepository: repository,
 		hasher:         hasher,
 	}
 }
 
-type LoginResponse struct {
-	Username string
-	Email    string
-}
-
-func (s *UserService) Login(email, password string) (*LoginResponse, error) {
+func (s *UserService) Login(email, password string) (*domain.LoginResponse, error) {
 	foundUser, err := s.userRepository.FindByEmail(email)
 	if err != nil {
 		return nil, err
@@ -48,7 +34,7 @@ func (s *UserService) Login(email, password string) (*LoginResponse, error) {
 		return nil, ErrInvalidCredentials
 	}
 
-	return &LoginResponse{
+	return &domain.LoginResponse{
 		Username: foundUser.Username,
 		Email:    foundUser.Email.Value,
 	}, nil
@@ -56,39 +42,15 @@ func (s *UserService) Login(email, password string) (*LoginResponse, error) {
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
-type SignupPayload struct {
-	Email    string
-	Password string
-	Username string
-}
-
-func (p *SignupPayload) ToDomainUser() *domain.User {
-	return &domain.User{
-		Username: p.Username,
-		Email: &domain.Email{
-			Value: p.Email,
-		},
-		Password: &domain.Password{
-			Value: p.Password,
-		},
-	}
-}
-
-type SignupResponse struct {
-	Username string
-	Email    string
-	ID       uint
-}
-
-func NewSignupResponse(user *domain.User) *SignupResponse {
-	return &SignupResponse{
+func NewSignupResponse(user *domain.User) *domain.SignupResponse {
+	return &domain.SignupResponse{
 		Username: user.Username,
 		Email:    user.Email.Value,
 		ID:       user.ID,
 	}
 }
 
-func (s *UserService) Signup(payload *SignupPayload) (*SignupResponse, error) {
+func (s *UserService) Signup(payload *domain.SignupPayload) (*domain.SignupResponse, error) {
 	err := s.checkIfUserAlreadyExists(payload.Username, payload.Email)
 	if err != nil {
 		return nil, err
