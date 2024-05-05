@@ -107,8 +107,6 @@ func (s *UserService) Signup(payload *SignupPayload) (*SignupResponse, error) {
 	return NewSignupResponse(userToCreate), nil
 }
 
-var ErrInvalidUserPayload = errors.New("invalid user payload")
-
 func (s *UserService) checkIfUserAlreadyExists(username, email string) error {
 	foundUser, err := s.userRepository.FindByEmail(email)
 	if err != nil {
@@ -132,4 +130,5 @@ func (s *UserService) checkIfUserAlreadyExists(username, email string) error {
 var (
 	ErrEmailAlreadyTaken    = errors.New("email already taken")
 	ErrUsernameAlreadyTaken = errors.New("username already taken")
+	ErrInvalidUserPayload   = errors.New("invalid user payload")
 )

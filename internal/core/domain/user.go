@@ -20,11 +20,6 @@ func (p *Password) Validate() error {
 	return nil
 }
 
-var (
-	ErrPasswordTooShort      = errors.New("password is too short")
-	ErrPasswordAlreadyHashed = errors.New("password already hashed")
-)
-
 type Email struct {
 	Value string
 }
@@ -35,8 +30,6 @@ func (e *Email) Validate() error {
 	}
 	return nil
 }
-
-var ErrEmailInvalid = errors.New("email is not valid")
 
 type User struct {
 	Password *Password
@@ -54,3 +47,9 @@ func (u *User) Validate() error {
 	}
 	return nil
 }
+
+var (
+	ErrPasswordTooShort      = errors.New("password is too short")
+	ErrPasswordAlreadyHashed = errors.New("password already hashed")
+	ErrEmailInvalid          = errors.New("email is not valid")
+)
