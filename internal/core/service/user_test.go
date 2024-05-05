@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func setUp(t *testing.T) (*mocks.MockHasher, *mocks.MockUsersRepository, *service.UserService) {
+func setUp(t *testing.T) (*mocks.MockHasher, *mocks.MockUsersRepository, *service.UsersService) {
 	hasherMock := mocks.NewMockHasher(t)
 	userRepositoryMock := mocks.NewMockUsersRepository(t)
 	userService := service.NewUserService(userRepositoryMock, hasherMock)
@@ -111,13 +111,13 @@ func TestUserService_Signup(t *testing.T) {
 		findByEmailError     error
 		findByUsernameError  error
 		createError          error
+		expectedError        error
 		findByEmailReturn    *domain.User
 		findByUsernameReturn *domain.User
 		name                 string
 		payloadEmail         string
 		payloadUsername      string
 		payloadPassword      string
-		expectedError        error
 	}{
 		{
 			name:            "Successful signup",
