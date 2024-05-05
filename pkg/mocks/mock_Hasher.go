@@ -64,6 +64,52 @@ func (_c *MockHasher_Compare_Call) RunAndReturn(run func(string, string) bool) *
 	return _c
 }
 
+// Hash provides a mock function with given fields: password
+func (_m *MockHasher) Hash(password string) string {
+	ret := _m.Called(password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Hash")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(password)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// MockHasher_Hash_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Hash'
+type MockHasher_Hash_Call struct {
+	*mock.Call
+}
+
+// Hash is a helper method to define mock.On call
+//   - password string
+func (_e *MockHasher_Expecter) Hash(password interface{}) *MockHasher_Hash_Call {
+	return &MockHasher_Hash_Call{Call: _e.mock.On("Hash", password)}
+}
+
+func (_c *MockHasher_Hash_Call) Run(run func(password string)) *MockHasher_Hash_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockHasher_Hash_Call) Return(_a0 string) *MockHasher_Hash_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHasher_Hash_Call) RunAndReturn(run func(string) string) *MockHasher_Hash_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockHasher creates a new instance of MockHasher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockHasher(t interface {

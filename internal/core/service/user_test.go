@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func setUp(t *testing.T) (*mocks.MockHasher, *mocks.MockUserRepository, *service.UserService) {
+func setUp(t *testing.T) (*mocks.MockHasher, *mocks.MockUsersRepository, *service.UserService) {
 	hasherMock := mocks.NewMockHasher(t)
-	userRepositoryMock := mocks.NewMockUserRepository(t)
+	userRepositoryMock := mocks.NewMockUsersRepository(t)
 	userService := service.NewUserService(userRepositoryMock, hasherMock)
 	return hasherMock, userRepositoryMock, userService
 }

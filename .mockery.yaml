@@ -3,9 +3,6 @@ with-expecter: True
 outpkg: mocks
 dir: pkg/mocks/
 packages:
-  github.com/raphael-foliveira/go-table-tests/internal/core/service:
-    config:
-      recursive: True
-  github.com/raphael-foliveira/go-table-tests/internal/core/domain:
+  github.com/raphael-foliveira/go-table-tests/internal/core/ports:
     config:
       recursive: True
