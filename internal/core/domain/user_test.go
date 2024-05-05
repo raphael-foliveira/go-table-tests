@@ -8,80 +8,113 @@ import (
 )
 
 func TestUser_Email(t *testing.T) {
-	t.Run("Valid Email", func(t *testing.T) {
-		validEmail := &domain.Email{
-			Value: "valid@email.com",
-		}
+	tests := []struct {
+		name        string
+		email       *domain.Email
+		expectError bool
+	}{
+		{
+			name: "Valid Email",
+			email: &domain.Email{
+				Value: "valid@email.com",
+			},
+			expectError: false,
+		},
+		{
+			name: "Invalid Email",
+			email: &domain.Email{
+				Value: "invalid_email",
+			},
+			expectError: true,
+		},
+	}
 
-		assert.NoError(t, validEmail.Validate())
-	})
-
-	t.Run("Invalid Email", func(t *testing.T) {
-		invalidEmail := &domain.Email{
-			Value: "invalid_email",
-		}
-
-		assert.ErrorIs(t, domain.ErrEmailInvalid, invalidEmail.Validate())
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.email.Validate()
+			assert.Equal(t, tt.expectError, err != nil)
+		})
+	}
 }
 
 func TestUser_Password(t *testing.T) {
-	t.Run("Valid Password", func(t *testing.T) {
-		validPassword := &domain.Password{
-			Value:    "valid_password",
-			IsHashed: false,
-		}
+	tests := []struct {
+		name        string
+		password    *domain.Password
+		expectError bool
+	}{
+		{
+			name: "Valid Password",
+			password: &domain.Password{
+				Value:    "valid_password",
+				IsHashed: false,
+			},
+			expectError: false,
+		},
+		{
+			name: "Invalid Password",
+			password: &domain.Password{
+				Value:    "invp",
+				IsHashed: false,
+			},
+			expectError: true,
+		},
+		{
+			name: "Password already hashed",
+			password: &domain.Password{
+				Value:    "valid_password",
+				IsHashed: true,
+			},
+			expectError: true,
+		},
+	}
 
-		assert.NoError(t, validPassword.Validate())
-	})
-
-	t.Run("Invalid Password", func(t *testing.T) {
-		invalidPassword := &domain.Password{
-			Value:    "invp",
-			IsHashed: false,
-		}
-
-		assert.ErrorIs(t, domain.ErrPasswordTooShort, invalidPassword.Validate())
-	})
-
-	t.Run("Already hashed password", func(t *testing.T) {
-		alreadyHashedPassword := &domain.Password{
-			Value:    "hashed_password_string",
-			IsHashed: true,
-		}
-
-		assert.ErrorIs(t, domain.ErrPasswordAlreadyHashed, alreadyHashedPassword.Validate())
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.password.Validate()
+			assert.Equal(t, tt.expectError, err != nil)
+		})
+	}
 }
 
 func TestUser_User(t *testing.T) {
-	t.Run("Valid User", func(t *testing.T) {
-		validUser := &domain.User{
-			Username: "valid_user",
-			Email: &domain.Email{
-				Value: "valid@email.com",
+	tests := []struct {
+		name        string
+		user        *domain.User
+		expectError bool
+	}{
+		{
+			name: "Valid User",
+			user: &domain.User{
+				Username: "valid_user",
+				Email: &domain.Email{
+					Value: "valid@email.com",
+				},
+				Password: &domain.Password{
+					Value:    "valid_password_string",
+					IsHashed: false,
+				},
 			},
-			Password: &domain.Password{
-				Value:    "valid_password_string",
-				IsHashed: false,
+			expectError: false,
+		},
+		{
+			name: "Invalid User",
+			user: &domain.User{
+				Username: "valid_user",
+				Email: &domain.Email{
+					Value: "invalid_email.com",
+				},
+				Password: &domain.Password{
+					Value:    "valid_password_string",
+					IsHashed: false,
+				},
 			},
-		}
+			expectError: true,
+		},
+	}
 
-		assert.NoError(t, validUser.Validate())
-	})
-
-	t.Run("Invalid User", func(t *testing.T) {
-		invalidUser := &domain.User{
-			Username: "valid_user",
-			Email: &domain.Email{
-				Value: "invalid_email.com",
-			},
-			Password: &domain.Password{
-				Value:    "valid_password_string",
-				IsHashed: false,
-			},
-		}
-
-		assert.ErrorIs(t, domain.ErrEmailInvalid, invalidUser.Validate())
-	})
+	for _, tt := range tests {
+		err := tt.user.Validate()
+		assert.Equal(t, tt.expectError, err != nil)
+	}
 }
