@@ -28,7 +28,7 @@ func customErrorHandler(err error, ctx echo.Context) {
 	var httpErr *echo.HTTPError
 	if errors.As(err, &httpErr) {
 		res.StatusCode = httpErr.Code
-		res.Message = httpErr.Error()
+		res.Message = httpErr.Message.(string)
 	}
 
 	ctx.JSON(res.StatusCode, res)

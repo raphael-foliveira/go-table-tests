@@ -28,6 +28,36 @@ func setUpDependencies(t *testing.T) (*api.UsersHandler, *mocks.MockUsersService
 	return usersHandler, mockUsersService
 }
 
+func TestUserHandler_SetupRoutes(t *testing.T) {
+	app := setUpTestServer()
+	usersHandler, _ := setUpDependencies(t)
+
+	apiGroup := app.Group("/api")
+
+	usersHandler.SetupRoutes(apiGroup)
+
+	tests := []struct {
+		testName      string
+		expectedRoute string
+	}{
+		{
+			testName:      "Login Route",
+			expectedRoute: "/api/users/login",
+		},
+		{
+			testName:      "Signup Route",
+			expectedRoute: "/api/users/signup",
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			routes := app.Routes()
+			assert.Equal(t, tt.expectedRoute, routes[i].Path)
+		})
+	}
+}
+
 func TestUserHandler_Login(t *testing.T) {
 	tests := []struct {
 		mockLoginErr        error
