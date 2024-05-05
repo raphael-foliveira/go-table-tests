@@ -17,5 +17,5 @@ type Hasher interface {
 
 type UsersService interface {
 	Login(email, password string) (*domain.LoginResponse, error)
-	Signup()
+	Signup(payload *domain.SignupPayload) (*domain.SignupResponse, error)
 }
