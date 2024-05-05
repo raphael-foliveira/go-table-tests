@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/raphael-foliveira/go-table-tests/internal/core/domain"
 )
@@ -95,7 +96,7 @@ func (s *UserService) Signup(payload *SignupPayload) (*SignupResponse, error) {
 
 	userToCreate := payload.ToDomainUser()
 	if err := userToCreate.Validate(); err != nil {
-		return nil, errors.Join(ErrInvalidUserPayload, err)
+		return nil, fmt.Errorf("%w: %w", ErrInvalidUserPayload, err)
 	}
 
 	err = s.userRepository.Create(userToCreate)

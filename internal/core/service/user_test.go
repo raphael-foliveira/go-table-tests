@@ -117,7 +117,7 @@ func TestUserService_Signup(t *testing.T) {
 		payloadEmail         string
 		payloadUsername      string
 		payloadPassword      string
-		expectError          bool
+		expectedError        error
 	}{
 		{
 			name:            "Successful signup",
@@ -131,7 +131,7 @@ func TestUserService_Signup(t *testing.T) {
 			payloadEmail:      "taken@email.com",
 			payloadUsername:   "validusername",
 			payloadPassword:   "validpassword",
-			expectError:       true,
+			expectedError:     service.ErrEmailAlreadyTaken,
 		},
 		{
 			name:                 "Username already taken",
@@ -139,7 +139,13 @@ func TestUserService_Signup(t *testing.T) {
 			payloadEmail:         "valid@email.com",
 			payloadUsername:      "takenusername",
 			payloadPassword:      "validpassword",
-			expectError:          true,
+			expectedError:        service.ErrUsernameAlreadyTaken,
+		},
+		{
+			name:            "invalid payload",
+			payloadEmail:    "invalid_email",
+			payloadPassword: "invp",
+			expectedError:   service.ErrInvalidUserPayload,
 		},
 	}
 
@@ -156,7 +162,7 @@ func TestUserService_Signup(t *testing.T) {
 					FindByUsername(tt.payloadUsername).
 					Return(tt.findByUsernameReturn, tt.findByUsernameError)
 
-				if tt.findByUsernameReturn == nil {
+				if tt.findByUsernameReturn == nil && tt.expectedError != service.ErrInvalidUserPayload {
 					userRepositoryMock.EXPECT().
 						Create(mock.Anything).Return(tt.createError)
 				}
@@ -168,9 +174,9 @@ func TestUserService_Signup(t *testing.T) {
 				Password: tt.payloadPassword,
 			})
 
-			assert.Equal(t, tt.expectError, err != nil)
+			assert.Equal(t, tt.expectedError != nil, err != nil)
 
-			if !tt.expectError {
+			if tt.expectedError == nil {
 				assert.Equal(t, tt.payloadEmail, response.Email)
 				assert.Equal(t, tt.payloadUsername, response.Username)
 				return
