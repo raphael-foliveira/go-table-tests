@@ -13,7 +13,7 @@ import (
 func setUp(t *testing.T) (*mocks.MockHasher, *mocks.MockUsersRepository, *service.UsersService) {
 	hasherMock := mocks.NewMockHasher(t)
 	userRepositoryMock := mocks.NewMockUsersRepository(t)
-	userService := service.NewUserService(userRepositoryMock, hasherMock)
+	userService := service.NewUsersService(userRepositoryMock, hasherMock)
 	return hasherMock, userRepositoryMock, userService
 }
 
