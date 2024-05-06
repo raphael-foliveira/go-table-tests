@@ -12,6 +12,7 @@ type UsersRepository interface {
 
 type Hasher interface {
 	Compare(givenPassword, hashedPassword string) bool
+	Hash(password string) string
 }
 
 type UsersService interface {

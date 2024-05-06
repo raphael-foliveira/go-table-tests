@@ -8,19 +8,19 @@ import (
 	"github.com/raphael-foliveira/go-table-tests/internal/core/ports"
 )
 
-type UserService struct {
+type UsersService struct {
 	userRepository ports.UsersRepository
 	hasher         ports.Hasher
 }
 
-func NewUserService(repository ports.UsersRepository, hasher ports.Hasher) *UserService {
-	return &UserService{
+func NewUserService(repository ports.UsersRepository, hasher ports.Hasher) *UsersService {
+	return &UsersService{
 		userRepository: repository,
 		hasher:         hasher,
 	}
 }
 
-func (s *UserService) Login(email, password string) (*domain.LoginResponse, error) {
+func (s *UsersService) Login(email, password string) (*domain.LoginResponse, error) {
 	foundUser, err := s.userRepository.FindByEmail(email)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func NewSignupResponse(user *domain.User) *domain.SignupResponse {
 	}
 }
 
-func (s *UserService) Signup(payload *domain.SignupPayload) (*domain.SignupResponse, error) {
+func (s *UsersService) Signup(payload *domain.SignupPayload) (*domain.SignupResponse, error) {
 	err := s.checkIfUserAlreadyExists(payload.Username, payload.Email)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (s *UserService) Signup(payload *domain.SignupPayload) (*domain.SignupRespo
 	return NewSignupResponse(userToCreate), nil
 }
 
-func (s *UserService) checkIfUserAlreadyExists(username, email string) error {
+func (s *UsersService) checkIfUserAlreadyExists(username, email string) error {
 	foundUser, err := s.userRepository.FindByEmail(email)
 	if err != nil {
 		return err
