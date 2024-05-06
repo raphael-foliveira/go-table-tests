@@ -23,7 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	app := server.CreateApp()
+	app := server.NewServer()
 
 	apiGroup := app.Group("/api")
 
@@ -43,7 +43,7 @@ func main() {
 	defer done()
 
 	go func() {
-		err := server.Start(app, 3000)
+		err := app.Start(3000)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			panic(err)
 		}

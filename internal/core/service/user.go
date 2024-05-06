@@ -51,14 +51,14 @@ func NewSignupResponse(user *domain.User) *domain.SignupResponse {
 }
 
 func (s *UsersService) Signup(payload *domain.SignupPayload) (*domain.SignupResponse, error) {
-	err := s.checkIfUserAlreadyExists(payload.Username, payload.Email)
-	if err != nil {
-		return nil, err
-	}
-
 	userToCreate := payload.ToDomainUser()
 	if err := userToCreate.Validate(); err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrInvalidUserPayload, err)
+	}
+
+	err := s.checkIfUserAlreadyExists(userToCreate)
+	if err != nil {
+		return nil, err
 	}
 
 	err = s.hashPassword(userToCreate.Password)
@@ -74,8 +74,8 @@ func (s *UsersService) Signup(payload *domain.SignupPayload) (*domain.SignupResp
 	return NewSignupResponse(userToCreate), nil
 }
 
-func (s *UsersService) checkIfUserAlreadyExists(username, email string) error {
-	foundUser, err := s.userRepository.FindByEmail(email)
+func (s *UsersService) checkIfUserAlreadyExists(user *domain.User) error {
+	foundUser, err := s.userRepository.FindByEmail(user.Email.Value)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (s *UsersService) checkIfUserAlreadyExists(username, email string) error {
 		return ErrEmailAlreadyTaken
 	}
 
-	foundUser, err = s.userRepository.FindByUsername(username)
+	foundUser, err = s.userRepository.FindByUsername(user.Username)
 	if err != nil {
 		return err
 	}

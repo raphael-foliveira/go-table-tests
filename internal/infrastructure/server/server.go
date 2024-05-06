@@ -15,9 +15,19 @@ func CreateApp() *echo.Echo {
 	return app
 }
 
-func Start(app *echo.Echo, port int) error {
+type Server struct {
+	*echo.Echo
+}
+
+func NewServer() *Server {
+	return &Server{
+		Echo: CreateApp(),
+	}
+}
+
+func (s *Server) Start(port int) error {
 	addr := fmt.Sprintf(":%d", port)
-	return app.Start(addr)
+	return s.Echo.Start(addr)
 }
 
 func customErrorHandler(err error, ctx echo.Context) {
