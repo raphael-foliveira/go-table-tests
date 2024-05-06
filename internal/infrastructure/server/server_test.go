@@ -10,7 +10,7 @@ import (
 
 	"github.com/raphael-foliveira/go-table-tests/internal/adapters/api"
 	"github.com/raphael-foliveira/go-table-tests/internal/adapters/dto"
-	"github.com/raphael-foliveira/go-table-tests/internal/application/server"
+	"github.com/raphael-foliveira/go-table-tests/internal/infrastructure/server"
 	"github.com/raphael-foliveira/go-table-tests/pkg/mocks"
 	"github.com/stretchr/testify/assert"
 )
