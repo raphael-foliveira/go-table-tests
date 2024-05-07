@@ -13,7 +13,7 @@ type UsersService struct {
 	hasher         ports.Hasher
 }
 
-func NewUserService(repository ports.UsersRepository, hasher ports.Hasher) *UsersService {
+func NewUsersService(repository ports.UsersRepository, hasher ports.Hasher) *UsersService {
 	return &UsersService{
 		userRepository: repository,
 		hasher:         hasher,

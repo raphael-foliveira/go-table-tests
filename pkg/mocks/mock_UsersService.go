@@ -79,9 +79,34 @@ func (_c *MockUsersService_Login_Call) RunAndReturn(run func(string, string) (*d
 	return _c
 }
 
-// Signup provides a mock function with given fields:
-func (_m *MockUsersService) Signup() {
-	_m.Called()
+// Signup provides a mock function with given fields: payload
+func (_m *MockUsersService) Signup(payload *domain.SignupPayload) (*domain.SignupResponse, error) {
+	ret := _m.Called(payload)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Signup")
+	}
+
+	var r0 *domain.SignupResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*domain.SignupPayload) (*domain.SignupResponse, error)); ok {
+		return rf(payload)
+	}
+	if rf, ok := ret.Get(0).(func(*domain.SignupPayload) *domain.SignupResponse); ok {
+		r0 = rf(payload)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.SignupResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*domain.SignupPayload) error); ok {
+		r1 = rf(payload)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockUsersService_Signup_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Signup'
@@ -90,23 +115,24 @@ type MockUsersService_Signup_Call struct {
 }
 
 // Signup is a helper method to define mock.On call
-func (_e *MockUsersService_Expecter) Signup() *MockUsersService_Signup_Call {
-	return &MockUsersService_Signup_Call{Call: _e.mock.On("Signup")}
+//   - payload *domain.SignupPayload
+func (_e *MockUsersService_Expecter) Signup(payload interface{}) *MockUsersService_Signup_Call {
+	return &MockUsersService_Signup_Call{Call: _e.mock.On("Signup", payload)}
 }
 
-func (_c *MockUsersService_Signup_Call) Run(run func()) *MockUsersService_Signup_Call {
+func (_c *MockUsersService_Signup_Call) Run(run func(payload *domain.SignupPayload)) *MockUsersService_Signup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(*domain.SignupPayload))
 	})
 	return _c
 }
 
-func (_c *MockUsersService_Signup_Call) Return() *MockUsersService_Signup_Call {
-	_c.Call.Return()
+func (_c *MockUsersService_Signup_Call) Return(_a0 *domain.SignupResponse, _a1 error) *MockUsersService_Signup_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockUsersService_Signup_Call) RunAndReturn(run func()) *MockUsersService_Signup_Call {
+func (_c *MockUsersService_Signup_Call) RunAndReturn(run func(*domain.SignupPayload) (*domain.SignupResponse, error)) *MockUsersService_Signup_Call {
 	_c.Call.Return(run)
 	return _c
 }
