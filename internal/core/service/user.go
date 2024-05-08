@@ -61,6 +61,11 @@ func (s *UsersService) Signup(payload *domain.SignupPayload) (*domain.SignupResp
 		return nil, fmt.Errorf("%w: %w", ErrInvalidUserPayload, err)
 	}
 
+	err = s.hashPassword(userToCreate.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	err = s.userRepository.Create(userToCreate)
 	if err != nil {
 		return nil, err
@@ -89,8 +94,22 @@ func (s *UsersService) checkIfUserAlreadyExists(username, email string) error {
 	return nil
 }
 
+func (s *UsersService) hashPassword(password *domain.Password) error {
+	if password.IsHashed {
+		return ErrPasswordAlreadyHashed
+	}
+	hashedPassword, err := s.hasher.Hash(password.Value)
+	if err != nil {
+		return err
+	}
+	password.Value = hashedPassword
+	password.IsHashed = true
+	return nil
+}
+
 var (
-	ErrEmailAlreadyTaken    = errors.New("email already taken")
-	ErrUsernameAlreadyTaken = errors.New("username already taken")
-	ErrInvalidUserPayload   = errors.New("invalid user payload")
+	ErrEmailAlreadyTaken     = errors.New("email already taken")
+	ErrUsernameAlreadyTaken  = errors.New("username already taken")
+	ErrInvalidUserPayload    = errors.New("invalid user payload")
+	ErrPasswordAlreadyHashed = errors.New("cannot hash password that is already hashed")
 )

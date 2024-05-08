@@ -65,7 +65,7 @@ func (_c *MockHasher_Compare_Call) RunAndReturn(run func(string, string) bool) *
 }
 
 // Hash provides a mock function with given fields: password
-func (_m *MockHasher) Hash(password string) string {
+func (_m *MockHasher) Hash(password string) (string, error) {
 	ret := _m.Called(password)
 
 	if len(ret) == 0 {
@@ -73,13 +73,23 @@ func (_m *MockHasher) Hash(password string) string {
 	}
 
 	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (string, error)); ok {
+		return rf(password)
+	}
 	if rf, ok := ret.Get(0).(func(string) string); ok {
 		r0 = rf(password)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockHasher_Hash_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Hash'
@@ -100,12 +110,12 @@ func (_c *MockHasher_Hash_Call) Run(run func(password string)) *MockHasher_Hash_
 	return _c
 }
 
-func (_c *MockHasher_Hash_Call) Return(_a0 string) *MockHasher_Hash_Call {
-	_c.Call.Return(_a0)
+func (_c *MockHasher_Hash_Call) Return(_a0 string, _a1 error) *MockHasher_Hash_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockHasher_Hash_Call) RunAndReturn(run func(string) string) *MockHasher_Hash_Call {
+func (_c *MockHasher_Hash_Call) RunAndReturn(run func(string) (string, error)) *MockHasher_Hash_Call {
 	_c.Call.Return(run)
 	return _c
 }

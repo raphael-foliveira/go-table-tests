@@ -151,7 +151,7 @@ func TestUserService_Signup(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, userRepositoryMock, userService := setUp(t)
+			hasherMock, userRepositoryMock, userService := setUp(t)
 
 			userRepositoryMock.EXPECT().
 				FindByEmail(tt.payloadEmail).
@@ -163,6 +163,7 @@ func TestUserService_Signup(t *testing.T) {
 					Return(tt.findByUsernameReturn, tt.findByUsernameError)
 
 				if tt.findByUsernameReturn == nil && tt.expectedError != service.ErrInvalidUserPayload {
+					hasherMock.EXPECT().Hash(tt.payloadPassword).Return("hashedPassword", nil)
 					userRepositoryMock.EXPECT().
 						Create(mock.Anything).Return(tt.createError)
 				}
