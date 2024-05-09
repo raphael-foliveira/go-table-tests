@@ -2,7 +2,6 @@ package server_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -35,7 +34,6 @@ func TestServer_ErrorHandler(t *testing.T) {
 	var responseBody *dto.ErrorResponse
 
 	json.NewDecoder(response.Body).Decode(&responseBody)
-	fmt.Printf("%+v\n", responseBody)
 	assert.Equal(t, api.ErrInvalidPayload.Message, responseBody.Message)
 	assert.Equal(t, http.StatusBadRequest, responseBody.StatusCode)
 }

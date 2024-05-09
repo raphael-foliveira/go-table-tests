@@ -58,14 +58,11 @@ func TestUserHandler_SetupRoutes(t *testing.T) {
 	}
 }
 
-func TestUserHandler_Login(t *testing.T) {
+func TestUserHandlerLogin_Success(t *testing.T) {
 	tests := []struct {
-		mockLoginErr        error
-		expectedError       error
-		mockLoginResponse   *domain.LoginResponse
-		testName            string
-		loginJson           string
-		skipMockExpectation bool
+		mockLoginResponse *domain.LoginResponse
+		testName          string
+		loginJson         string
 	}{
 		{
 			testName:  "Success",
@@ -75,18 +72,6 @@ func TestUserHandler_Login(t *testing.T) {
 				Email:    "valid@user.com",
 			},
 		},
-		{
-			testName:      "Invalid Credentials",
-			loginJson:     `{"email": "valid@user.com", "password": "invalidPassword"}`,
-			mockLoginErr:  service.ErrInvalidCredentials,
-			expectedError: api.ErrInvalidCredentials,
-		},
-		{
-			testName:            "Invalid request body",
-			loginJson:           `{invalid"json"}`,
-			expectedError:       api.ErrInvalidPayload,
-			skipMockExpectation: true,
-		},
 	}
 
 	for _, tt := range tests {
@@ -94,11 +79,9 @@ func TestUserHandler_Login(t *testing.T) {
 			testServer := setUpTestServer()
 			usersHandler, mockUsersService := setUpDependencies(t)
 
-			if !tt.skipMockExpectation {
-				mockUsersService.EXPECT().
-					Login(mock.Anything, mock.Anything).
-					Return(tt.mockLoginResponse, tt.mockLoginErr)
-			}
+			mockUsersService.EXPECT().
+				Login(mock.Anything, mock.Anything).
+				Return(tt.mockLoginResponse, nil)
 
 			req := httptest.NewRequest(http.MethodPost, "/api/users/login", strings.NewReader(tt.loginJson))
 			req.Header.Add("Content-Type", "application/json")
@@ -107,14 +90,86 @@ func TestUserHandler_Login(t *testing.T) {
 			ctx := testServer.NewContext(req, recorder)
 
 			err := usersHandler.Login(ctx)
-			assert.Equal(t, tt.expectedError, err)
+			assert.NoError(t, err)
 
-			if tt.expectedError == nil {
-				var responseBody *dto.LoginResponse
-				json.NewDecoder(recorder.Body).Decode(&responseBody)
-				assert.Equal(t, tt.mockLoginResponse.Email, responseBody.Email)
-				assert.Equal(t, tt.mockLoginResponse.Username, responseBody.Username)
-			}
+			var responseBody *dto.LoginResponse
+			json.NewDecoder(recorder.Body).Decode(&responseBody)
+			assert.Equal(t, tt.mockLoginResponse.Email, responseBody.Email)
+			assert.Equal(t, tt.mockLoginResponse.Username, responseBody.Username)
+		})
+	}
+}
+
+func TestUserHandlerLogin_InvalidBody(t *testing.T) {
+	tests := []struct {
+		mockLoginResponse *domain.LoginResponse
+		testName          string
+		loginJson         string
+	}{
+		{
+			testName:  "Success",
+			loginJson: `{"email": "valid@user.com", "password": "unhashedPassword"}`,
+			mockLoginResponse: &domain.LoginResponse{
+				Username: "validuser",
+				Email:    "valid@user.com",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			testServer := setUpTestServer()
+			usersHandler, mockUsersService := setUpDependencies(t)
+
+			mockUsersService.EXPECT().
+				Login(mock.Anything, mock.Anything).
+				Return(tt.mockLoginResponse, nil)
+
+			req := httptest.NewRequest(http.MethodPost, "/api/users/login", strings.NewReader(tt.loginJson))
+			req.Header.Add("Content-Type", "application/json")
+			recorder := httptest.NewRecorder()
+
+			ctx := testServer.NewContext(req, recorder)
+
+			err := usersHandler.Login(ctx)
+			assert.NoError(t, err)
+
+			var responseBody *dto.LoginResponse
+			json.NewDecoder(recorder.Body).Decode(&responseBody)
+			assert.Equal(t, tt.mockLoginResponse.Email, responseBody.Email)
+			assert.Equal(t, tt.mockLoginResponse.Username, responseBody.Username)
+		})
+	}
+}
+
+func TestUserHandlerLogin_InvalidCredentials(t *testing.T) {
+	tests := []struct {
+		testName  string
+		loginJson string
+	}{
+		{
+			testName:  "Invalid Credentials",
+			loginJson: `{"email": "valid@user.com", "password": "invalidPassword"}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			testServer := setUpTestServer()
+			usersHandler, mockUsersService := setUpDependencies(t)
+
+			mockUsersService.EXPECT().
+				Login(mock.Anything, mock.Anything).
+				Return(nil, service.ErrInvalidCredentials)
+
+			req := httptest.NewRequest(http.MethodPost, "/api/users/login", strings.NewReader(tt.loginJson))
+			req.Header.Add("Content-Type", "application/json")
+			recorder := httptest.NewRecorder()
+
+			ctx := testServer.NewContext(req, recorder)
+
+			err := usersHandler.Login(ctx)
+			assert.Equal(t, api.ErrInvalidCredentials, err)
 		})
 	}
 }

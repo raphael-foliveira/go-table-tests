@@ -9,8 +9,8 @@ import (
 
 func TestUser_Email(t *testing.T) {
 	tests := []struct {
-		name        string
 		email       *domain.Email
+		name        string
 		expectError bool
 	}{
 		{
@@ -39,8 +39,8 @@ func TestUser_Email(t *testing.T) {
 
 func TestUser_Password(t *testing.T) {
 	tests := []struct {
-		name        string
 		password    *domain.Password
+		name        string
 		expectError bool
 	}{
 		{
@@ -79,8 +79,8 @@ func TestUser_Password(t *testing.T) {
 
 func TestUser_User(t *testing.T) {
 	tests := []struct {
-		name        string
 		user        *domain.User
+		name        string
 		expectError bool
 	}{
 		{

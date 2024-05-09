@@ -8,29 +8,26 @@ import (
 	"github.com/raphael-foliveira/go-table-tests/internal/core/ports"
 )
 
-type UsersService struct {
+type Users struct {
 	userRepository ports.UsersRepository
 	hasher         ports.Hasher
 }
 
-func NewUsersService(repository ports.UsersRepository, hasher ports.Hasher) *UsersService {
-	return &UsersService{
+func NewUsersService(repository ports.UsersRepository, hasher ports.Hasher) *Users {
+	return &Users{
 		userRepository: repository,
 		hasher:         hasher,
 	}
 }
 
-func (s *UsersService) Login(email, password string) (*domain.LoginResponse, error) {
+func (s *Users) Login(email, password string) (*domain.LoginResponse, error) {
 	foundUser, err := s.userRepository.FindByEmail(email)
 	if err != nil {
 		return nil, err
 	}
-	if foundUser == nil {
-		return nil, ErrInvalidCredentials
-	}
 
 	ok := s.hasher.Compare(password, foundUser.Password.Value)
-	if !ok {
+	if foundUser == nil || !ok {
 		return nil, ErrInvalidCredentials
 	}
 
@@ -50,15 +47,15 @@ func NewSignupResponse(user *domain.User) *domain.SignupResponse {
 	}
 }
 
-func (s *UsersService) Signup(payload *domain.SignupPayload) (*domain.SignupResponse, error) {
-	err := s.checkIfUserAlreadyExists(payload.Username, payload.Email)
-	if err != nil {
-		return nil, err
-	}
-
+func (s *Users) Signup(payload *domain.SignupPayload) (*domain.SignupResponse, error) {
 	userToCreate := payload.ToDomainUser()
 	if err := userToCreate.Validate(); err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrInvalidUserPayload, err)
+	}
+
+	err := s.checkIfUserAlreadyExists(userToCreate)
+	if err != nil {
+		return nil, err
 	}
 
 	err = s.hashPassword(userToCreate.Password)
@@ -74,8 +71,8 @@ func (s *UsersService) Signup(payload *domain.SignupPayload) (*domain.SignupResp
 	return NewSignupResponse(userToCreate), nil
 }
 
-func (s *UsersService) checkIfUserAlreadyExists(username, email string) error {
-	foundUser, err := s.userRepository.FindByEmail(email)
+func (s *Users) checkIfUserAlreadyExists(user *domain.User) error {
+	foundUser, err := s.userRepository.FindByEmail(user.Email.Value)
 	if err != nil {
 		return err
 	}
@@ -83,7 +80,7 @@ func (s *UsersService) checkIfUserAlreadyExists(username, email string) error {
 		return ErrEmailAlreadyTaken
 	}
 
-	foundUser, err = s.userRepository.FindByUsername(username)
+	foundUser, err = s.userRepository.FindByUsername(user.Username)
 	if err != nil {
 		return err
 	}
@@ -94,7 +91,7 @@ func (s *UsersService) checkIfUserAlreadyExists(username, email string) error {
 	return nil
 }
 
-func (s *UsersService) hashPassword(password *domain.Password) error {
+func (s *Users) hashPassword(password *domain.Password) error {
 	if password.IsHashed {
 		return ErrPasswordAlreadyHashed
 	}
